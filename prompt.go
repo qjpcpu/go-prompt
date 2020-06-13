@@ -129,9 +129,8 @@ func (p *Prompt) feed(b []byte) (shouldExit bool, exec *Exec) {
 			p.history.Add(exec.input)
 		}
 	case ControlC:
-		p.renderer.BreakLine(p.buf)
-		p.buf = NewBuffer()
-		p.history.Clear()
+		shouldExit = true
+		return
 	case Up, ControlP:
 		if !completing { // Don't use p.completion.Completing() because it takes double operation when switch to selected=-1.
 			if newBuf, changed := p.history.Older(p.buf); changed {
@@ -230,7 +229,7 @@ func (p *Prompt) handleASCIICodeBinding(b []byte) bool {
 }
 
 // Input just returns user input text.
-func (p *Prompt) Input() string {
+func (p *Prompt) Input() (string, bool) {
 	defer debug.Teardown()
 	debug.Log("start prompt")
 	p.setUp()
@@ -251,11 +250,11 @@ func (p *Prompt) Input() string {
 			if shouldExit, e := p.feed(b); shouldExit {
 				p.renderer.BreakLine(p.buf)
 				stopReadBufCh <- struct{}{}
-				return ""
+				return "", shouldExit
 			} else if e != nil {
 				// Stop goroutine to run readBuffer function
 				stopReadBufCh <- struct{}{}
-				return e.input
+				return e.input, false
 			} else {
 				p.completion.Update(*p.buf.Document())
 				p.renderer.Render(p.buf, p.completion)
