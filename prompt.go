@@ -254,6 +254,7 @@ func (p *Prompt) Input() (string, bool) {
 			} else if e != nil {
 				// Stop goroutine to run readBuffer function
 				stopReadBufCh <- struct{}{}
+				e.input = translateInputString(e.input)
 				return e.input, false
 			} else {
 				p.completion.Update(*p.buf.Document())
@@ -292,4 +293,17 @@ func (p *Prompt) tearDown() {
 		debug.AssertNoError(p.in.TearDown())
 	}
 	p.renderer.TearDown()
+}
+
+func translateInput(inputBytes []byte) []byte {
+	for i, b := range inputBytes {
+		if b == '\r' {
+			inputBytes[i] = '\n'
+		}
+	}
+	return inputBytes
+}
+
+func translateInputString(s string) string {
+	return string(translateInput([]byte(s)))
 }

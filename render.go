@@ -3,8 +3,8 @@ package prompt
 import (
 	"runtime"
 
-	"github.com/qjpcpu/go-prompt/internal/debug"
 	runewidth "github.com/mattn/go-runewidth"
+	"github.com/qjpcpu/go-prompt/internal/debug"
 )
 
 // Render to render prompt information from state of Buffer.
@@ -229,7 +229,7 @@ func (r *Render) BreakLine(buffer *Buffer) {
 	r.clear(cursor)
 	r.renderPrefix()
 	r.out.SetColor(r.inputTextColor, r.inputBGColor, false)
-	r.out.WriteStr(buffer.Document().Text + "\n")
+	r.out.WriteStr(translateInputString(buffer.Document().Text) + "\n")
 	r.out.SetColor(DefaultColor, DefaultColor, false)
 	debug.AssertNoError(r.out.Flush())
 	if r.breakLineCallback != nil {
