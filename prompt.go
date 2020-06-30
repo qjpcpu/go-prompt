@@ -307,3 +307,4 @@ func translateInput(inputBytes []byte) []byte {
 func translateInputString(s string) string {
 	return string(translateInput([]byte(s)))
 }
+
